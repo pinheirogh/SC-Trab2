@@ -3,6 +3,7 @@ import sys
 import os
 import gerador_num_primo
 import aritmetica
+import base64
 
 
 def main():
@@ -11,6 +12,9 @@ def main():
     gravar_em_arquivo(nome_arquivo, 1024)
     print('Arquivos de chaves gerados com sucesso!')
 
+def codificar_base64(conteudo):
+    # Codifica conteudo em base64
+    return base64.b64encode(bytes(conteudo, 'utf-8'))
 
 def gerar_chave(tam_chave):
     # Cria uma chave publica e privada de tam_chave bits
@@ -54,12 +58,12 @@ def gravar_em_arquivo(nome_arquivo, tam_chave):
 
     print(f'Gravando as chaves no arquivo {nome_arquivo}')
 
-    file_object = open(f'arquivos_texto/{nome_arquivo}_chavepub.txt', 'w')
-    file_object.write(f'{tam_chave},{chave_publica[0]},{chave_publica[1]}')
+    file_object = open(f'arquivos_texto/{nome_arquivo}_chavepub.txt', 'wb')
+    file_object.write(codificar_base64(f'{tam_chave},{chave_publica[0]},{chave_publica[1]}'))
     file_object.close()
 
-    file_object = open(f'arquivos_texto/{nome_arquivo}_chavepriv.txt', 'w')
-    file_object.write(f'{tam_chave},{chave_privada[0]},{chave_privada[1]}')
+    file_object = open(f'arquivos_texto/{nome_arquivo}_chavepriv.txt', 'wb')
+    file_object.write(codificar_base64(f'{tam_chave},{chave_privada[0]},{chave_privada[1]}'))
     file_object.close()
 
 
