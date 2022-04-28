@@ -1,24 +1,16 @@
 import sys
 import math
-
-# The public and private keys for this program are created by
-# the makePublicPrivateKeys.py program.
-# This program must be run in the same folder as the key files.
+import base64
 
 SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.,'
-
 
 def main():
     opcao = input('''1 - Criptografar\n2 - Descriptografar\nOpção: ''')
 
-    # Runs a test that encrypts a message to a file or decrypts a message
-    # from a file.
-    arquivo_criptografado = 'arquivos_texto/arquivo_criptografado.txt'  # The file to write to/read from.
-    #opcao = 'decrypt'  # Set to either 'encrypt' or 'decrypt'.
-
     if opcao == '1':
         print()
         nome_arquivo_mensagem = 'arquivos_texto/' + input('Nome do arquivo em claro: ') + '.txt'
+        nome_arquivo_decifrado = 'arquivos_texto/texto_cifrado.txt'
         
         # Abrir arquivo para leitura de texto
         with open(nome_arquivo_mensagem, 'r') as arquivo:
@@ -28,150 +20,159 @@ def main():
 
         nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave pública: ') + '.txt'
                 
-        encryptedText = encryptAndWriteToFile(arquivo_criptografado, nome_arquivo_chave, mensagem)
+        texto_cifrado = cifrar_para_arquivo(nome_arquivo_decifrado, nome_arquivo_chave, mensagem)
 
-        print('Encrypted text:')
-        print(encryptedText)        
+        print('Texto cifrado:')
+        print(texto_cifrado)        
     elif opcao == '2':
         print()
-        nome_arquivo_cifrado = 'arquivos_texto/' + input('Nome do arquivo cifrado: ') + '.txt'
+        nome_arquivo_cifrado = 'arquivos_texto/texto_decifrado.txt'
         nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave privada: ') + '.txt'
-        decryptedText = readFromFileAndDecrypt(nome_arquivo_cifrado, nome_arquivo_chave)
+        texto_decifrado = arquivo_para_decifrar(nome_arquivo_cifrado, nome_arquivo_chave)
 
-        print('Decrypted text:')
-        print(decryptedText)
+        print('Texto decifrado:')
+        print(texto_decifrado)
+
+def codificar_base64(conteudo):
+    # Codifica conteudo em base64
+    return base64.b64encode(bytes(conteudo, 'utf-8'))
+    
+
+def decodificar_base64(conteudo):
+    # Decodifica um arquivo base64 e retorna string
+    return str(base64.b64decode(conteudo).decode('utf-8'))
 
 
-def getBlocksFromText(message, blockSize):
-    # Converts a string message to a list of block integers.
-    for character in message:
-        if character not in SYMBOLS:
-            print('ERROR: The symbol set does not have the character %s'
-                  % (character))
+def converter_texto_em_blocos(mensagem, tam_bloco):
+    # Converts a string mensagem to a list of block integers.
+
+    # Verificar se há algum simbolo não permitido
+    for simbolo in mensagem:
+        if simbolo not in SYMBOLS:
+            print(f'ERRO: O texto contém simbolos não permitidos: {str(simbolo)}')
             sys.exit()
 
-    blockInts = []
-    for blockStart in range(0, len(message), blockSize):
-        # Calculate the block integer for this block of text:
-        blockInt = 0
-        for i in range(blockStart, min(blockStart + blockSize, len(message))):
-            blockInt += (SYMBOLS.index(message[i])) * \
-                (len(SYMBOLS) ** (i % blockSize))
-        blockInts.append(blockInt)
-    return blockInts
+    blocos_int = []
+    for bloco in range(0, len(mensagem), tam_bloco):
+        # Calcular o numero inteiro de cada bloco:
+        bloco_int = 0
+        for i in range(bloco, min(bloco + tam_bloco, len(mensagem))):
+            bloco_int += (SYMBOLS.index(mensagem[i])) * \
+                (len(SYMBOLS) ** (i % tam_bloco))
+        blocos_int.append(bloco_int)
+    return blocos_int
 
 
-def getTextFromBlocks(blockInts, messageLength, blockSize):
-    # Converts a list of block integers to the original message string.
-    # The original message length is needed to properly convert the last
-    # block integer.
-    message = []
-    for blockInt in blockInts:
-        blockMessage = []
-        for i in range(blockSize - 1, -1, -1):
-            if len(message) + i < messageLength:
-                # Decode the message string for the 128 (or whatever
-                # blockSize is set to) characters from this block integer:
-                charIndex = blockInt // (len(SYMBOLS) ** i)
-                blockInt = blockInt % (len(SYMBOLS) ** i)
-                blockMessage.insert(0, SYMBOLS[charIndex])
-        message.extend(blockMessage)
-    return ''.join(message)
+def converter_blocos_em_texto(blocos_cifrados, tam_mensagem, tam_bloco):
+    # Converte uma lista de blocos cifrados em uma mensagem
+    mensagem = []
+    for bloco_int in blocos_cifrados:
+        bloco_mensagem = []
+        for i in range(tam_bloco - 1, -1, -1):
+            if len(mensagem) + i < tam_mensagem:
+                # Decodificar o bloco de texto de acordo com o tamanho do alfabeto utilizado
+                indice = bloco_int // (len(SYMBOLS) ** i)
+                bloco_int = bloco_int % (len(SYMBOLS) ** i)
+                bloco_mensagem.insert(0, SYMBOLS[indice])
+        mensagem.extend(bloco_mensagem)
+    return ''.join(mensagem)
 
 
-def encryptMessage(message, key, blockSize):
-    # Converts the message string into a list of block integers, and then
-    # encrypts each block integer. Pass the PUBLIC key to encrypt.
-    encryptedBlocks = []
-    n, e = key
+def cifrar_mensagem(mensagem, chave, tam_bloco):
+    # Criptografa a mensagem com a chave publica e retorna uma lista de blocos cifrados
 
-    for block in getBlocksFromText(message, blockSize):
-        # ciphertext = plaintext ^ e mod n
-        encryptedBlocks.append(pow(block, e, n))
+    blocos_cifrados = []
+    n, e = chave
+
+    for bloco in converter_texto_em_blocos(mensagem, tam_bloco):
+        # C = m ^ e mod n
+        blocos_cifrados.append(pow(bloco, e, n))
 
     # Aplicar OAEP aos blocos
           
-    return encryptedBlocks
+    return blocos_cifrados
 
 
-def decryptMessage(encryptedBlocks, messageLength, key, blockSize):
-    # Decrypts a list of encrypted block ints into the original message
-    # string. The original message length is required to properly decrypt
-    # the last block. Be sure to pass the PRIVATE key to decrypt.
-    decryptedBlocks = []
-    n, d = key
+def decifrar_mensagem(blocos_cifrados, tam_mensagem, chave, tam_bloco):
+    # Descriptografa a mensagem com a chave privada e retorna uma lista de blocos decifrados
+
+    blocos_decifrados = []
+    n, d = chave
 
     # Reverter OAEP dos blocos
 
-    for block in encryptedBlocks:
-        # plaintext = ciphertext ^ d mod n
-        decryptedBlocks.append(pow(block, d, n))
-    return getTextFromBlocks(decryptedBlocks, messageLength, blockSize)
+    for bloco in blocos_cifrados:
+        # M = C ^ d mod n
+        blocos_decifrados.append(pow(bloco, d, n))
+    return converter_blocos_em_texto(blocos_decifrados, tam_mensagem, tam_bloco)
 
 
-def readKeyFile(keyFilename):
-    # Given the filename of a file that contains a public or private key,
-    # return the key as a (n,e) or (n,d) tuple value.
-    fo = open(keyFilename)
-    content = fo.read()
-    fo.close()
-    keySize, n, EorD = content.split(',')
-    return (int(keySize), int(n), int(EorD))
+def ler_arquivo_chave(arquivo_chave):
+    # Procura o arquivo de chave e retorna uma tupla com os valores tamanho da chave, 'n' e 'e'/'d'
+
+    file_object = open(arquivo_chave)
+    conteudo = file_object.read()
+    file_object.close()
+    conteudo = decodificar_base64(conteudo)    
+    tam_chave, n, EorD = conteudo.split(',')
+    return (int(tam_chave), int(n), int(EorD))
 
 
-def encryptAndWriteToFile(messageFilename, keyFilename, message, blockSize=None):
-    # Using a key from a key file, encrypt the message and save it to a
-    # file. Returns the encrypted message string.
-    keySize, n, e = readKeyFile(keyFilename)
-    if blockSize == None:
-        # If blockSize isn't given, set it to the largest size allowed by the key size and symbol set size.
-        blockSize = int(math.log(2 ** keySize, len(SYMBOLS)))
-    # Check that key size is large enough for the block size:
-    if not (math.log(2 ** keySize, len(SYMBOLS)) >= blockSize):
-        sys.exit('ERROR: Block size is too large for the key and symbol set size. Did you specify the correct key file and encrypted file?')
-    # Encrypt the message:
-    encryptedBlocks = encryptMessage(message, (n, e), blockSize)
+def cifrar_para_arquivo(nome_arquivo_decifrado, arquivo_chave, mensagem, tam_bloco=None):
+    # Cifra o conteudo e salva o resultado em um arquivo
 
-    # Convert the large int values to one string value:
-    for i in range(len(encryptedBlocks)):
-        encryptedBlocks[i] = str(encryptedBlocks[i])
-    encryptedContent = ','.join(encryptedBlocks)
+    tam_chave, n, e = ler_arquivo_chave(arquivo_chave)
 
-    # Write out the encrypted string to the output file:
-    encryptedContent = '%s_%s_%s' % (len(message), blockSize, encryptedContent)
-    fo = open(messageFilename, 'w')
-    fo.write(encryptedContent)
-    fo.close()
-    # Also return the encrypted string:
-    return encryptedContent
+    if tam_bloco == None:
+        # Definir o tamanho do bloco para o maior valor possivel de acordo com o tamanho da chave
+        tam_bloco = int(math.log(2 ** tam_chave, len(SYMBOLS)))
 
+    # Checar se o tamanho da chave é suficiente para o tamanho do bloco:
+    if not (math.log(2 ** tam_chave, len(SYMBOLS)) >= tam_bloco):
+        sys.exit('ERRO: Tamanho do bloco é muito grande para a chave e o alfabeto. Os arquivos indicados estão corretos?')
+    
+    # Cifrar mensagem:
+    blocos_cifrados = cifrar_mensagem(mensagem, (n, e), tam_bloco)
 
-def readFromFileAndDecrypt(messageFilename, keyFilename):
-    # Using a key from a key file, read an encrypted message from a file
-    # and then decrypt it. Returns the decrypted message string.
-    keySize, n, d = readKeyFile(keyFilename)
+    # Converter os blocos cifrados para string:
+    for i in range(len(blocos_cifrados)):
+        blocos_cifrados[i] = str(blocos_cifrados[i])
+    conteudo_cifrado = ','.join(blocos_cifrados)
+    
+    # Gravação do arquivo de criptografia e codificação em base64
+    conteudo_cifrado = f'{len(mensagem)}_{tam_bloco}_{conteudo_cifrado}'
+    conteudo_cifrado = codificar_base64(conteudo_cifrado)
+    file_object = open(nome_arquivo_decifrado, 'wb')
+    file_object.write(conteudo_cifrado)
+    file_object.close()
 
-    # Read in the message length and the encrypted message from the file:
-    fo = open(messageFilename)
-    content = fo.read()
-    messageLength, blockSize, encryptedMessage = content.split('_')
-    messageLength = int(messageLength)
-    blockSize = int(blockSize)
-
-    # Check that key size is large enough for the block size:
-    if not (math.log(2 ** keySize, len(SYMBOLS)) >= blockSize):
-        sys.exit('ERROR: Block size is too large for the key and symbol set size. Did you specify the correct key file and encrypted file?')
-
-    # Convert the encrypted message into large int values:
-    encryptedBlocks = []
-    for block in encryptedMessage.split(','):
-        encryptedBlocks.append(int(block))
-
-    # Decrypt the large int values:
-    return decryptMessage(encryptedBlocks, messageLength, (n, d), blockSize)
+    return conteudo_cifrado
 
 
-# If publicKeyCipher.py is run (instead of imported as a module), call
-# the main() function.
+def arquivo_para_decifrar(nome_arquivo_cifrado, arquivo_chave):
+    # Decifra o conteudo de um arquivo e retorna o conteudo decifrado
+
+    tam_chave, n, d = ler_arquivo_chave(arquivo_chave)
+
+    # Ler o arquivo de criptografia, decodificar e extrair o conteudo cifrado:
+    file_object = open(nome_arquivo_cifrado)
+    conteudo = decodificar_base64(file_object.read())
+    file_object.close()
+    tam_mensagem, tam_bloco, mensagem_cifrada = conteudo.split('_')
+    tam_mensagem = int(tam_mensagem)
+    tam_bloco = int(tam_bloco)
+
+    # Checar se o tamanho da chave é suficiente para o tamanho do bloco:
+    if not (math.log(2 ** tam_chave, len(SYMBOLS)) >= tam_bloco):
+        sys.exit('ERRO: Tamanho do bloco é muito grande para a chave e o alfabeto. Os arquivos indicados estão corretos?')
+
+    # Converter o conteudo cifrado em blocos de inteiros:
+    blocos_cifrados = []
+    for bloco in mensagem_cifrada.split(','):
+        blocos_cifrados.append(int(bloco))
+
+    return decifrar_mensagem(blocos_cifrados, tam_mensagem, (n, d), tam_bloco)
+
+
 if __name__ == '__main__':
     main()
