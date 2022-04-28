@@ -5,28 +5,38 @@ import math
 # the makePublicPrivateKeys.py program.
 # This program must be run in the same folder as the key files.
 
-SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.'
+SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.,'
 
 
 def main():
+    opcao = input('''1 - Criptografar\n2 - Descriptografar\nOpção: ''')
+
     # Runs a test that encrypts a message to a file or decrypts a message
     # from a file.
-    filename = 'encrypted_file.txt'  # The file to write to/read from.
-    mode = 'encrypt'  # Set to either 'encrypt' or 'decrypt'.
+    arquivo_criptografado = 'arquivos_texto/arquivo_criptografado.txt'  # The file to write to/read from.
+    #opcao = 'decrypt'  # Set to either 'encrypt' or 'decrypt'.
 
-    if mode == 'encrypt':
-        message = 'Journalists belong in the gutter because that is where the ruling classes throw their guilty secrets. Gerald Priestland. The Founding Fathers gave the free press the protection it must have to bare the secrets of government and inform the people. Hugo Black.'
-        pubKeyFilename = 'al_sweigart_pubkey.txt'
-        print('Encrypting and writing to %s...' % (filename))
-        encryptedText = encryptAndWriteToFile(
-            filename, pubKeyFilename, message)
+    if opcao == '1':
+        print()
+        nome_arquivo_mensagem = 'arquivos_texto/' + input('Nome do arquivo em claro: ') + '.txt'
+        
+        # Abrir arquivo para leitura de texto
+        with open(nome_arquivo_mensagem, 'r') as arquivo:
+            mensagem = arquivo.read()
+        # Fechar arquivo
+        arquivo.close()
+
+        nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave pública: ') + '.txt'
+                
+        encryptedText = encryptAndWriteToFile(arquivo_criptografado, nome_arquivo_chave, mensagem)
 
         print('Encrypted text:')
-        print(encryptedText)
-    elif mode == 'decrypt':
-        privKeyFilename = 'al_sweigart_privkey.txt'
-        print('Reading from %s and decrypting...' % (filename))
-        decryptedText = readFromFileAndDecrypt(filename, privKeyFilename)
+        print(encryptedText)        
+    elif opcao == '2':
+        print()
+        nome_arquivo_cifrado = 'arquivos_texto/' + input('Nome do arquivo cifrado: ') + '.txt'
+        nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave privada: ') + '.txt'
+        decryptedText = readFromFileAndDecrypt(nome_arquivo_cifrado, nome_arquivo_chave)
 
         print('Decrypted text:')
         print(decryptedText)
@@ -39,14 +49,15 @@ def getBlocksFromText(message, blockSize):
             print('ERROR: The symbol set does not have the character %s'
                   % (character))
             sys.exit()
-            blockInts = []
+
+    blockInts = []
     for blockStart in range(0, len(message), blockSize):
         # Calculate the block integer for this block of text:
         blockInt = 0
         for i in range(blockStart, min(blockStart + blockSize, len(message))):
             blockInt += (SYMBOLS.index(message[i])) * \
                 (len(SYMBOLS) ** (i % blockSize))
-            blockInts.append(blockInt)
+        blockInts.append(blockInt)
     return blockInts
 
 
@@ -77,6 +88,9 @@ def encryptMessage(message, key, blockSize):
     for block in getBlocksFromText(message, blockSize):
         # ciphertext = plaintext ^ e mod n
         encryptedBlocks.append(pow(block, e, n))
+
+    # Aplicar OAEP aos blocos
+          
     return encryptedBlocks
 
 
@@ -86,6 +100,9 @@ def decryptMessage(encryptedBlocks, messageLength, key, blockSize):
     # the last block. Be sure to pass the PRIVATE key to decrypt.
     decryptedBlocks = []
     n, d = key
+
+    # Reverter OAEP dos blocos
+
     for block in encryptedBlocks:
         # plaintext = ciphertext ^ d mod n
         decryptedBlocks.append(pow(block, d, n))

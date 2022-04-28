@@ -47,18 +47,18 @@ def gravar_em_arquivo(nome_arquivo, tam_chave):
     # Em cada arquivo há: tamanho da chave, 'n', 'e' ou 'd' separados por virgula
 
     # Checagem de segurança para evitar sobrescrita de arquivos
-    if os.path.exists(f'{nome_arquivo}_chavepub.txt') or os.path.exists(f'{nome_arquivo}_chavepriv.txt'):
-        sys.exit(f'PERIGO: O arquivo {nome_arquivo}_chavepub.txt ou {nome_arquivo}_chavepriv.txt ja existem! Use outro nome ou delete os arquivos.')
+    if os.path.exists(f'arquivos_texto/{nome_arquivo}_chavepub.txt') or os.path.exists(f'arquivos_texto/{nome_arquivo}_chavepriv.txt'):
+        sys.exit(f'PERIGO: O arquivo arquivos_texto/{nome_arquivo}_chavepub.txt ou arquivos_texto/{nome_arquivo}_chavepriv.txt ja existem! Use outro nome ou delete os arquivos.')
 
     chave_publica, chave_privada = gerar_chave(tam_chave)
 
     print(f'Gravando as chaves no arquivo {nome_arquivo}')
 
-    file_object = open(f'{nome_arquivo}_chavepub.txt', 'w')
+    file_object = open(f'arquivos_texto/{nome_arquivo}_chavepub.txt', 'w')
     file_object.write(f'{tam_chave},{chave_publica[0]},{chave_publica[1]}')
     file_object.close()
 
-    file_object = open(f'{nome_arquivo}_chavepriv.txt', 'w')
+    file_object = open(f'arquivos_texto/{nome_arquivo}_chavepriv.txt', 'w')
     file_object.write(f'{tam_chave},{chave_privada[0]},{chave_privada[1]}')
     file_object.close()
 
