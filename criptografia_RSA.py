@@ -2,15 +2,15 @@ import sys
 import math
 import base64
 
-SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.,'
+SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.,+/=-'
 
 def main():
-    opcao = input('''1 - Criptografar\n2 - Descriptografar\nOpção: ''')
+    opcao = input('''ALGORITMO RSA\n1 - Cifrar\n2 - Decifrar\nOpção: ''')
 
     if opcao == '1':
         print()
         nome_arquivo_mensagem = 'arquivos_texto/' + input('Nome do arquivo em claro: ') + '.txt'
-        nome_arquivo_decifrado = 'arquivos_texto/texto_cifrado.txt'
+        nome_arquivo_decifrado = 'arquivos_texto/msg_cifrada_RSA.txt'
         
         # Abrir arquivo para leitura de texto
         with open(nome_arquivo_mensagem, 'r') as arquivo:
@@ -20,17 +20,25 @@ def main():
 
         nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave pública: ') + '.txt'
                 
-        texto_cifrado = cifrar_para_arquivo(nome_arquivo_decifrado, nome_arquivo_chave, mensagem)
+        texto_cifrado = str(cifrar_para_arquivo(nome_arquivo_decifrado, nome_arquivo_chave, mensagem)).replace('b\'', '').replace('\'', '')
 
-        print('Texto cifrado:')
+        print()
+        print('TEXTO CIFRADO:')
         print(texto_cifrado)        
     elif opcao == '2':
         print()
-        nome_arquivo_cifrado = 'arquivos_texto/texto_cifrado.txt'
+        nome_arquivo_cifrado = 'arquivos_texto/' + input('Nome do arquivo cifrado: ') + '.txt'
         nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave privada: ') + '.txt'
         texto_decifrado = arquivo_para_decifrar(nome_arquivo_cifrado, nome_arquivo_chave)
 
-        print('Texto decifrado:')
+        nome_arquivo_decifrado = 'arquivos_texto/msg_decifrada_RSA.txt'
+        conteudo_cifrado = texto_decifrado
+        file_object = open(nome_arquivo_decifrado, 'w')
+        file_object.write(conteudo_cifrado)
+        file_object.close()
+
+        print()
+        print('TEXTO DECIFRADO:')
         print(texto_decifrado)
 
 def codificar_base64(conteudo):
@@ -153,8 +161,6 @@ def arquivo_para_decifrar(nome_arquivo_cifrado, arquivo_chave):
     # Decifra o conteudo de um arquivo e retorna o conteudo decifrado
 
     tam_chave, n, d = ler_arquivo_chave(arquivo_chave)
-
-    print(n)
 
     # Ler o arquivo de criptografia, decodificar e extrair o conteudo cifrado:
     file_object = open(nome_arquivo_cifrado)

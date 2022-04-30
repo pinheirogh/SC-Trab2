@@ -6,7 +6,7 @@ import base64
 from criptografia_RSA import codificar_base64, decodificar_base64
 
 def main():    
-    opcao = input('''1 - Criptografar\n2 - Descriptografar\nOpção: ''')
+    opcao = input('''ALGORITMO AES\n1 - Cifrar\n2 - Decifrar\nOpção: ''')
 
     if opcao == '1':
         nome_arquivo_mensagem = 'arquivos_texto/' + input('Digite o nome do arquivo de mensagem: ') + '.txt'
