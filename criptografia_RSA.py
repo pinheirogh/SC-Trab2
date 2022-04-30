@@ -26,7 +26,7 @@ def main():
         print(texto_cifrado)        
     elif opcao == '2':
         print()
-        nome_arquivo_cifrado = 'arquivos_texto/texto_decifrado.txt'
+        nome_arquivo_cifrado = 'arquivos_texto/texto_cifrado.txt'
         nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave privada: ') + '.txt'
         texto_decifrado = arquivo_para_decifrar(nome_arquivo_cifrado, nome_arquivo_chave)
 
@@ -153,6 +153,8 @@ def arquivo_para_decifrar(nome_arquivo_cifrado, arquivo_chave):
     # Decifra o conteudo de um arquivo e retorna o conteudo decifrado
 
     tam_chave, n, d = ler_arquivo_chave(arquivo_chave)
+
+    print(n)
 
     # Ler o arquivo de criptografia, decodificar e extrair o conteudo cifrado:
     file_object = open(nome_arquivo_cifrado)
