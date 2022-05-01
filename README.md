@@ -19,5 +19,4 @@
     - rdomanski/AES-CTR: Python implementation of AES encryption algorithm in counter mode. (github.com): https://github.com/rdomanski/AES-CTR
     - Using AES for Encryption and Decryption in Python Pycrypto | Novixys Software Dev Blog: https://www.novixys.com/blog/using-aes-encryption-decryption-python-pycrypto/
 - BASE64
-    - Encoding and Decoding Base64 Strings in Python (stackabuse.com): https://stackabuse.com/encoding-and-decoding-base64-strings-in-python/
-    - 
+    - Encoding and Decoding Base64 Strings in Python (stackabuse.com): https://stackabuse.com/encoding-and-decoding-base64-strings-in-python/ 
