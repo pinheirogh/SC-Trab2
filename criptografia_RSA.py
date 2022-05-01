@@ -10,7 +10,7 @@ def main():
     if opcao == '1':
         print()
         nome_arquivo_mensagem = 'arquivos_texto/' + input('Nome do arquivo em claro: ') + '.txt'
-        nome_arquivo_decifrado = 'arquivos_texto/msg_cifrada_RSA.txt'
+        
         
         # Abrir arquivo para leitura de texto
         with open(nome_arquivo_mensagem, 'r') as arquivo:
@@ -19,23 +19,28 @@ def main():
         arquivo.close()
 
         nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave pública: ') + '.txt'
+
+        nome_arquivo_cifrado = 'arquivos_texto/' + input('Nome p/ arquivo de saída: ') + '.txt'
                 
-        texto_cifrado = str(cifrar_para_arquivo(nome_arquivo_decifrado, nome_arquivo_chave, mensagem)).replace('b\'', '').replace('\'', '')
+        texto_cifrado = str(cifrar_para_arquivo(nome_arquivo_cifrado, nome_arquivo_chave, mensagem)).replace('b\'', '').replace('\'', '')    
 
         print()
         print('TEXTO CIFRADO:')
         print(texto_cifrado)        
     elif opcao == '2':
         print()
-        nome_arquivo_cifrado = 'arquivos_texto/' + input('Nome do arquivo cifrado: ') + '.txt'
+        nome_arquivo_mensagem = 'arquivos_texto/' + input('Nome do arquivo cifrado: ') + '.txt'
         nome_arquivo_chave = 'arquivos_texto/' + input('Nome do arquivo de chave privada: ') + '.txt'
-        texto_decifrado = arquivo_para_decifrar(nome_arquivo_cifrado, nome_arquivo_chave)
+        
+        texto_decifrado = arquivo_para_decifrar(nome_arquivo_mensagem, nome_arquivo_chave)
 
-        nome_arquivo_decifrado = 'arquivos_texto/msg_decifrada_RSA.txt'
-        conteudo_cifrado = texto_decifrado
-        file_object = open(nome_arquivo_decifrado, 'w')
-        file_object.write(conteudo_cifrado)
-        file_object.close()
+        nome_arquivo_decifrado = 'arquivos_texto/' + input('Nome p/ arquivo de saída: ') + '.txt'
+
+        # Escrever texto decifrado no arquivo
+        with open(nome_arquivo_decifrado, 'w') as arquivo:
+            arquivo.write(texto_decifrado)
+        # Fechar arquivo
+        arquivo.close()
 
         print()
         print('TEXTO DECIFRADO:')
