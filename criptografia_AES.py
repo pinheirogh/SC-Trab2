@@ -40,6 +40,8 @@ def main():
         file_object.write(conteudo_cifrado)
         file_object.close()
         
+        print('Mensagem cifrada com sucesso! Arquivos gerados com sucesso!')
+
     elif opcao == '2':
         nome_arquivo_cifrado = 'arquivos_texto/' + input('Digite o nome do arquivo de mensagem cifrada: ') + '.txt'
         nome_arquivo_chavesessao = 'arquivos_texto/' + input('Digite o nome do arquivo de chave: ') + '.txt'
@@ -67,9 +69,18 @@ def main():
         # Fechar arquivo
         arquivo.close()
 
+
+        texto_decifrado = decrypt(mensagem_cifrada, chave_sessao, iv)
+
+        nome_arquivo_decifrado = 'arquivos_texto/msg_decifrada_AES.txt'
+        conteudo_cifrado = texto_decifrado
+        file_object = open(nome_arquivo_decifrado, 'w')
+        file_object.write(conteudo_cifrado)
+        file_object.close()
+
         print()
         print('MENSAGEM DECIFRADA:')
-        print(decrypt(mensagem_cifrada, chave_sessao, iv))
+        print(texto_decifrado)
 
 def encrypt(mensagem):
     chave_sessao = get_random_bytes(16)
