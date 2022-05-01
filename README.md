@@ -4,8 +4,8 @@
         - Checar primalidade dos número p e q cada um com 1024 bits
             - Miller-Rabin
     - Gerar chave de sessão (128 ou 256 bits)
-    - Cifrar simetricamente documento com chave de sessão 
-    - Cifrar assimetricamente (c/ chave pública do receptor) a chave de sessão usando OAEP
+    - Cifrar simetricamente (AES) documento com chave de sessão 
+    - Cifrar assimetricamente (RSA) (c/ chave pública do receptor) a chave de sessão (usando OAEP)
     - Calcular o hash do documento não cifrado 
     - Cifrar o hash do documento (c/ chave privada do emissor)
     - Enviar:
