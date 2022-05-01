@@ -1,3 +1,25 @@
+## Fluxo de Execução
+- Lado A (Emissor)
+    - Gerar chaves RSA
+        - Checar primalidade dos número p e q cada um com 1024 bits
+            - Miller-Rabin
+    - Gerar chave de sessão (128 ou 256 bits)
+    - Cifrar simetricamente documento com chave de sessão 
+    - Cifrar assimetricamente (c/ chave pública do receptor) a chave de sessão usando OAEP
+    - Calcular o hash do documento não cifrado 
+    - Cifrar o hash do documento (c/ chave privada do emissor)
+    - Enviar:
+        - Chave de sessão cifrada assimetricamente + IV
+        - Documento cifrado simetricamente
+        - Hash cifrado (Assinatura) assimetricamente
+- Lado B (Receptor)
+    - Decifrar a chave de sessão (c/ chave privada do receptor)
+    - Decifrar o documento c/ chave de sessão decifrada
+    - Calcular o hash do documento decifrado
+    - Decifrar a assinatura (Hash cifrado) (c/ chave pública do emissor)
+    - Fazer comparação dos hashes
+
+
 ## Bibliografia
 - Miller-Rabin
     - Faster Primality Test - Applied Cryptography: https://youtu.be/p5S0C8oKpsM
