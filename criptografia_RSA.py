@@ -2,7 +2,7 @@ import sys
 import math
 import base64
 
-SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.,+/=-'
+SIMBOLOS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.,+/=-'
 
 def main():
     opcao = input('''ALGORITMO RSA\n1 - Cifrar\n2 - Decifrar\nOpção: ''')
@@ -61,7 +61,7 @@ def converter_texto_em_blocos(mensagem, tam_bloco):
 
     # Verificar se há algum simbolo não permitido
     for simbolo in mensagem:
-        if simbolo not in SYMBOLS:
+        if simbolo not in SIMBOLOS:
             print(f'ERRO: O texto contém simbolos não permitidos: {str(simbolo)}')
             sys.exit()
 
@@ -70,8 +70,8 @@ def converter_texto_em_blocos(mensagem, tam_bloco):
         # Calcular o numero inteiro de cada bloco:
         bloco_int = 0
         for i in range(bloco, min(bloco + tam_bloco, len(mensagem))):
-            bloco_int += (SYMBOLS.index(mensagem[i])) * \
-                (len(SYMBOLS) ** (i % tam_bloco))
+            bloco_int += (SIMBOLOS.index(mensagem[i])) * \
+                (len(SIMBOLOS) ** (i % tam_bloco))
         blocos_int.append(bloco_int)
     return blocos_int
 
@@ -84,9 +84,9 @@ def converter_blocos_em_texto(blocos_cifrados, tam_mensagem, tam_bloco):
         for i in range(tam_bloco - 1, -1, -1):
             if len(mensagem) + i < tam_mensagem:
                 # Decodificar o bloco de texto de acordo com o tamanho do alfabeto utilizado
-                indice = bloco_int // (len(SYMBOLS) ** i)
-                bloco_int = bloco_int % (len(SYMBOLS) ** i)
-                bloco_mensagem.insert(0, SYMBOLS[indice])
+                indice = bloco_int // (len(SIMBOLOS) ** i)
+                bloco_int = bloco_int % (len(SIMBOLOS) ** i)
+                bloco_mensagem.insert(0, SIMBOLOS[indice])
         mensagem.extend(bloco_mensagem)
     return ''.join(mensagem)
 
@@ -138,10 +138,10 @@ def cifrar_para_arquivo(nome_arquivo_decifrado, arquivo_chave, mensagem, tam_blo
 
     if tam_bloco == None:
         # Definir o tamanho do bloco para o maior valor possivel de acordo com o tamanho da chave
-        tam_bloco = int(math.log(2 ** tam_chave, len(SYMBOLS)))
+        tam_bloco = int(math.log(2 ** tam_chave, len(SIMBOLOS)))
 
     # Checar se o tamanho da chave é suficiente para o tamanho do bloco:
-    if not (math.log(2 ** tam_chave, len(SYMBOLS)) >= tam_bloco):
+    if not (math.log(2 ** tam_chave, len(SIMBOLOS)) >= tam_bloco):
         sys.exit('ERRO: Tamanho do bloco é muito grande para a chave e o alfabeto. Os arquivos indicados estão corretos?')
     
     # Cifrar mensagem:
@@ -176,7 +176,7 @@ def arquivo_para_decifrar(nome_arquivo_cifrado, arquivo_chave):
     tam_bloco = int(tam_bloco)
 
     # Checar se o tamanho da chave é suficiente para o tamanho do bloco:
-    if not (math.log(2 ** tam_chave, len(SYMBOLS)) >= tam_bloco):
+    if not (math.log(2 ** tam_chave, len(SIMBOLOS)) >= tam_bloco):
         sys.exit('ERRO: Tamanho do bloco é muito grande para a chave e o alfabeto. Os arquivos indicados estão corretos?')
 
     # Converter o conteudo cifrado em blocos de inteiros:
